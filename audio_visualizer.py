@@ -2,6 +2,7 @@ import struct
 import sys
 import wave
 import numpy as np
+import pyaudio
 import pyqtgraph as pg
 
 from PyQt6 import QtCore, QtWidgets
@@ -15,10 +16,18 @@ class MainWindow(QtWidgets.QWidget):
 
         # waveform
         self.wf = wave.open(sys.argv[1], 'rb')
-        self.chunks = 256
+        self.chunks = 2048
+        self.samp_width = self.wf.getsampwidth()
         self.channels = self.wf.getnchannels()
         self.sample_rate = self.wf.getframerate()
 
+        # stream to play wav file
+        p = pyaudio.PyAudio()
+        self.stream = p.open(format = p.get_format_from_width(self.samp_width),
+                             channels = self.channels,
+                             rate = self.sample_rate,
+                             output = True)
+        
         # create graphs
         styles = {"color": "white", "font-size": "12px"}
         
@@ -53,23 +62,24 @@ class MainWindow(QtWidgets.QWidget):
 
         # create timer
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(75)
+        self.timer.setInterval(0)
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start()
+        self.timer.start() 
         
         # show the window
         self.show()
 
     def update_plot(self):
-        wf_data = self.wf.readframes(self.chunks)
+        wf_data = self.wf.readframes(self.chunks) # underrun may occur. can solve w/ threading or larger chunk size
+        self.stream.write(wf_data)
         try:
             wf_data_short = struct.unpack(str(self.channels*self.chunks)+"h", wf_data)
         except:
             self.timer.stop()
             return
         fft_wf_data_short = np.abs(rfft(wf_data_short)) # calc magnitude
-        fft_wf_data_short = fft_wf_data_short*2/(32768*self.chunks) # rescaling between 0-1
-        
+        fft_wf_data_short = fft_wf_data_short*2/((32768/2)*self.chunks) # rescaling between 0-1
+
         self.time_line.setData(self.time_samples, wf_data_short) # y-axis (time)
         self.freq_line.setData(self.freq_samples, fft_wf_data_short) # y-axis (freq)
         
@@ -83,4 +93,5 @@ if __name__ == '__main__':
     
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow(sys.argv[1])
+    #window.update_plot()
     sys.exit(app.exec())
