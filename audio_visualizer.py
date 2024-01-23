@@ -1,3 +1,6 @@
+# audio visualizer + playback
+# only tested with mono audio
+
 import struct
 import sys
 import wave
@@ -50,7 +53,7 @@ class MainWindow(QtWidgets.QWidget):
         self.freq_graph.setYRange(0, 1)
         # self.freq_graph.enableAutoRange(y=True)
         # self.freq_graph.setAutoVisible(y=True)
-        self.freq_samples = np.linspace(0, self.sample_rate, self.chunks)[0:int(self.chunks/2+1)] # x-axis (freq)
+        self.freq_samples = np.linspace(0, self.sample_rate, self.channels*self.chunks)[0:int(((self.channels*self.chunks)/2)+1)] # x-axis (freq)
         self.freq_line = self.freq_graph.plot(pen='c')
         
         # create a layout
@@ -82,6 +85,7 @@ class MainWindow(QtWidgets.QWidget):
 
         self.time_line.setData(self.time_samples, wf_data_short) # y-axis (time)
         self.freq_line.setData(self.freq_samples, fft_wf_data_short) # y-axis (freq)
+        
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
