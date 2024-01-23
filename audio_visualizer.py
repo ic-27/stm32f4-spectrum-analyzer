@@ -82,7 +82,6 @@ class MainWindow(QtWidgets.QWidget):
 
         self.time_line.setData(self.time_samples, wf_data_short) # y-axis (time)
         self.freq_line.setData(self.freq_samples, fft_wf_data_short) # y-axis (freq)
-        
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
