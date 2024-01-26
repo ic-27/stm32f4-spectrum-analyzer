@@ -1,0 +1,13 @@
+* TODO SD card WAV FFT to 32x16 LED Matrix [22%]
+- [X] Program stm32-disc1 through openocd
+- [X] Set up Makefile for stm32-disc1
+- [ ] Set up docker
+- [ ] LED
+- [ ] Buttons
+- [ ] SPI
+- [ ] MicroSD card reader
+- [ ] CMSIS FFT
+- [ ] LED matrix
+- [ ] Audio playback
+* TODO: SD card WAV FFT to 2.2 TFT SPI 240x320 Display
+* TODO: Microphone FFT to 2.2 TFT SPI 240x320 Display
