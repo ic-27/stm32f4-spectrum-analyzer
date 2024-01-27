@@ -1,1 +1,7 @@
 *~
+build/audio*
+build/bin
+build/generated*
+test/lib
+test/objs
+test/test_runner
