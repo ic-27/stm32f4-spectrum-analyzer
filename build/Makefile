@@ -14,6 +14,10 @@ VPATH += $(SHARED_DIR)
 INCLUDES += $(patsubst %,-I%, . $(SHARED_DIR))
 OPENCM3_DIR=../lib/libopencm3
 
+CXXSTD ?= -std=c++11
+OPT = -O0
+OOCD_INTERFACE = stlink
+OOCD_TARGET = stm32f4x
 include $(OPENCM3_DIR)/mk/genlink-config.mk
 include ./rules.mk
 include $(OPENCM3_DIR)/mk/genlink-rules.mk
