@@ -26,4 +26,7 @@ TEST_SRC_DIRS=\
 ## what to call the test binary
 TEST_TARGET=test_runner
 
+# Colorize output
+CPPUTEST_EXE_FLAGS += -c
+
 include $(CPPUTEST_HOME)/build/MakefileWorker.mk
