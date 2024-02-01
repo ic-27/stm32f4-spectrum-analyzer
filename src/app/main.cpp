@@ -1,91 +1,81 @@
-/*
- * This file is part of the libopencm3 project.
- *
- * Copyright (C) 2009 Uwe Hermann <uwe@hermann-uwe.de>
- * Copyright (C) 2011 Damjan Marion <damjan.marion@gmail.com>
- * Copyright (C) 2011 Mark Panajotovic <marko@electrontube.org>
- * Copyright (C) 2013 Chuck McManis <cmcmanis@mcmanis.com>
- *
- * This library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* This version derived from fancy blink */
-
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
+#include <libopencm3/stm32/spi.h>
 
-/* monotonically increasing number of milliseconds from reset
- * overflows every 49 days if you're wondering
- */
-volatile uint32_t system_millis;
+#define ARM_MATH_CM4
+#define __FPU_PRESENT 1
+#include "arm_math.h"
 
-/* Called when systick fires */
-void sys_tick_handler(void)
-{
-	system_millis++;
-}
-
-/* sleep for delay milliseconds */
-static void msleep(uint32_t delay)
-{
-	uint32_t wake = system_millis + delay;
-	while (wake > system_millis);
-}
-
-/* Set up a timer to create 1mS ticks. */
-static void systick_setup(void)
-{
-	/* clock rate / 1000 to get 1mS interrupt rate */
-	systick_set_reload(168000);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_counter_enable();
-	/* this done last */
-	systick_interrupt_enable();
-}
-
-/* Set STM32 to 168 MHz. */
-static void clock_setup(void)
-{
-	rcc_clock_setup_pll(&rcc_hse_8mhz_3v3[RCC_CLOCK_3V3_168MHZ]);
-
-	/* Enable GPIOD clock. */
-	rcc_periph_clock_enable(RCC_GPIOD);
-}
+#include "executor.h"
+#include "../bsp/led_matrix.h"
 
 static void gpio_setup(void)
 {
-	/* Set GPIO11-15 (in GPIO port D) to 'output push-pull'. */
-	gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,
-			GPIO11 | GPIO12 | GPIO13 | GPIO14 | GPIO15);
+    /* Enable GPIOD clock. */
+    rcc_periph_clock_enable(RCC_GPIOD);
+
+    /* Set GPIO12 (in GPIO port D) to 'output push-pull'. */
+    gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT,
+		    GPIO_PUPD_NONE, GPIO12 | GPIO13 | GPIO14 | GPIO15);
+}
+
+static void button_setup(void)
+{
+    /* Enable GPIOA clock. */
+    rcc_periph_clock_enable(RCC_GPIOA);
+    
+    /* Set GPIOA0 to 'input floating'. */
+    gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO0);
+}
+
+// set up SPI1
+static void spi_setup(void)
+{
+    rcc_periph_clock_enable(RCC_GPIOA);
+    
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE,
+		    GPIO4 | GPIO5 | GPIO6 | GPIO7);
+    gpio_set_af(GPIOA, GPIO_AF5, GPIO4 | GPIO5 | GPIO6 | GPIO7);
+
+    rcc_periph_clock_enable(RCC_SPI1);
+    spi_init_master(SPI1, SPI_CR1_BAUDRATE_FPCLK_DIV_8,
+			  SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+			  SPI_CR1_CPHA_CLK_TRANSITION_1,
+			  SPI_CR1_DFF_8BIT,
+			  SPI_CR1_LSBFIRST);
+    
+    spi_enable_ss_output(SPI1);
+    spi_enable(SPI1);
 }
 
 int main(void)
 {
-	clock_setup();
-	gpio_setup();
-	systick_setup();
+    Executor exec = Executor();
+    exec.init();
+  
+    int i;
 
-	/* Set two LEDs for wigwag effect when toggling. */
-	gpio_set(GPIOD, GPIO12 | GPIO14);
+    button_setup();
+    gpio_setup();
 
-	/* Blink the LEDs (PD12, PD13, PD14 and PD15) on the board. */
-	while (1) {
-		gpio_toggle(GPIOD, GPIO12 | GPIO13 | GPIO14 | GPIO15);
-		msleep(100);
+    spi_setup();    
+    spi_write(SPI1, 0x56);
+    
+    /* Blink the LED (PD12) on the board. */
+    while (1) {
+	gpio_toggle(GPIOD, GPIO12);
+
+	/* Upon button press, blink more slowly. */
+	if (gpio_get(GPIOA, GPIO0)) {
+	    for (i = 0; i < 3000000; i++) {	/* Wait a bit. */
+		__asm__("nop");
+	    }
 	}
 
-	return 0;
+	for (i = 0; i < 3000000; i++) {		/* Wait a bit. */
+	    __asm__("nop");
+	}
+    }
+
+    return 0;
 }
