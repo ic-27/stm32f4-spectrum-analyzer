@@ -4,3 +4,6 @@
 [submodule "test/cpputest"]
 	path = test/cpputest
 	url = https://github.com/cpputest/cpputest.git
+[submodule "lib/CMSIS_4"]
+	path = lib/CMSIS_4
+	url = https://github.com/ARM-software/CMSIS_4.git
