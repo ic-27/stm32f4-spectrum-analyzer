@@ -1,8 +1,8 @@
 PROJECT = audio_fft
 BUILD_DIR = bin
 
-SHARED_DIR = ../src/app/
-CXXFILES = main.cpp executor.cpp
+SHARED_DIR = ../src/app/ ../src/driver
+CXXFILES = main.cpp executor.cpp oled.cpp
 # CFILES += api.c
 # AFILES += api-asm.S
 
