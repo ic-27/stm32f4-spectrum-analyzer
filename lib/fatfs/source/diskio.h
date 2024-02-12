@@ -74,4 +74,18 @@ DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 }
 #endif
 
+/* Glue */
+#define DUMMY_BYTE	0xFF
+
+#define SD_CLK_PIN	GPIO13
+#define SD_MISO_PIN	GPIO14
+#define SD_MOSI_PIN	GPIO15
+#define SD_SS_PIN	GPIO12
+
+#define CMD17_TOKEN	0xFE
+
+typedef enum {
+    DINIT_OK = 0,
+    DINIT_NOTRDY
+} DINITRESULT;
 #endif
