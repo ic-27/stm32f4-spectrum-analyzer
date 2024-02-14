@@ -20,7 +20,7 @@
 #define DEV_MMC		1	/* Example: Map MMC/SD card to physical drive 1 */
 #define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
-static DINITRESULT disk_initialized = DINIT_NOTRDY;
+extern DINITRESULT diskInitialized;
 
 static void init_spi(void);
 int32_t rx_data_block(BYTE *buff, UINT len);
@@ -33,11 +33,7 @@ DSTATUS disk_status(
 		    __attribute__((unused))BYTE pdrv        /* Physical drive number to identify the drive */
 		    )
 {
-    /* if (DINIT_OK == disk_initialized) { */
-    /* 	return RES_OK; */
-    /* } else { */
-    /* 	return RES_NOTRDY; */
-    /* } */
+    return glue_diskStatus();
 }
 
 /*-----------------------------------------------------------------------*/
@@ -47,8 +43,8 @@ DSTATUS disk_initialize(
 			__attribute__((unused))BYTE pdrv        /* Physical drive nmuber to identify the drive */
 			)
 {
-    disk_initialized = initialize_card();
-    /* return disk_status(DUMMY_BYTE); */
+    diskInitialized = glue_initCard();
+    return disk_status(DUMMY_BYTE);
 }
 
 /*-----------------------------------------------------------------------*/
@@ -61,25 +57,8 @@ DRESULT disk_read(
 		  UINT count		/* Number of sectors to read */
 		  )
 {
-    /* if (disk_initialized != DINIT_OK) { */
-    /* 	return RES_NOTRDY; */
-    /* } */
-
-    /* if (1 == count) { // single read */
-    /* 	glue_sendCmd(17, sector, 0); */
-    /* 	rx_data_block(buff, 512); */
-    /* } else { // multiple read */
-    /* 	glue_sendCmd(18, sector, 0); */
-    /* 	do { */
-    /* 	    rx_data_block(buff, 512); */
-    /* 	    buff += 512; */
-    /* 	} while (--count); */
-    /* } */
-
-    /* return RES_OK; */
+    return glue_read(pdrv, buff, sector, count);
 }
-
-
 
 /*-----------------------------------------------------------------------*/
 /* Write Sector(s)                                                       */
@@ -168,132 +147,3 @@ DRESULT disk_ioctl (
     return RES_PARERR;
 }
 
-/*-----------------------------------------------------------------------*/
-/* Glue Functions                                                        */
-/*-----------------------------------------------------------------------*/
-
-/**
- * init_spi() - Initialize spi for microSD card adapater
- *
- * Return: void
- */
-static void init_spi(void)
-{
-    rcc_periph_clock_enable(RCC_GPIOB);
-
-    gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE,
-		    SD_CLK_PIN | SD_MOSI_PIN);
-    gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_PULLUP, SD_MISO_PIN);
-		    
-    gpio_set_af(GPIOB, GPIO_AF5, SD_CLK_PIN | SD_MISO_PIN | SD_MOSI_PIN);
-
-    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, SD_SS_PIN);
-    gpio_set(GPIOB, SD_SS_PIN);
-
-    rcc_periph_clock_enable(RCC_SPI2);
-    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_128,
-		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-		    SPI_CR1_CPHA_CLK_TRANSITION_1,
-		    SPI_CR1_DFF_8BIT,
-		    SPI_CR1_MSBFIRST);
-    
-    spi_enable_ss_output(SPI2);
-    spi_enable(SPI2);
-}
-
-/* int32_t glue_sendCmd(uint8_t cmd, uint32_t arg, uint8_t crc) */
-/* { */
-/*     uint32_t ret; */
-
-/*     spi_xfer(SPI2, 0xFF); */
-/*     spi_xfer(SPI2, 0xFF); */
-
-/*     gpio_clear(GPIOB, SD_SS_PIN); */
-    
-/*     spi_xfer(SPI2, cmd | 0x40); */
-/*     spi_xfer(SPI2, arg >> 24); */
-/*     spi_xfer(SPI2, arg >> 16); */
-/*     spi_xfer(SPI2, arg >> 8); */
-/*     spi_xfer(SPI2, arg >> 0); */
-/*     spi_xfer(SPI2, crc); */
-
-/*     for (uint8_t retry=0; retry < 200; ++retry) { */
-/* 	ret = spi_xfer(SPI2, 0xFF); */
-/* 	if (!(ret & 0x80)) { // got a valid response, keep reading */
-/* 	    while (spi_xfer(SPI2, 0xFF) != 0xFF); */
-/* 	    goto glue_sendCmd_end; */
-/* 	} */
-/*     } */
-/*     ret = -1; */
-/*  glue_sendCmd_end: */
-/*     gpio_set(GPIOB, SD_SS_PIN); */
-/*     spi_xfer(SPI2, 0xFF); */
-    
-/*     return ret; */
-/* } */
-
-int32_t rx_data_block(BYTE *buff, UINT len)
-{
-    gpio_clear(GPIOB, SD_SS_PIN);
-
-    #warning add a timeout later
-    uint8_t token;
-    do {
-	token = spi_xfer(SPI2, DUMMY_BYTE);
-    } while (CMD17_TOKEN != token);
-
-    for (UINT i=0; i<len; ++i) {
-	buff[i] = spi_xfer(SPI2, DUMMY_BYTE);
-    }
-
-    gpio_set(GPIOB, SD_SS_PIN);
-    return 0;
-}
-
-/**
- * initialize_card()
- *
- * Make sure SPI is initialized before calling this function.
- *
- * Return: void
- */
-DINITRESULT initialize_card(void)
-{
-    uint8_t retArr[GLUE_SENDCMD_RETARR_MAXLEN] = {0};
-    init_spi();
-    
-#warning give proper delay
-    // wait >= 1 ms
-    for(int i=0; i<300000; ++i); // delay
-
-    // apply 74+ dummy clock pulses enter native operating mode
-    gpio_set(GPIOB, SD_SS_PIN);
-    for (uint8_t i=0; i<10; ++i) {
-	spi_xfer(SPI2, 0xFF);
-    }
-    
-    // software reset
-    glue_sendCmd(retArr, 0, 0, 0x95);
-    
-    /* /\* // detect SDC v1 or SDC v2 (we are SDC v2) *\/ */
-/*     glue_sendCmd(8, 0x01AA, 0x87); */
-
-/*     // loop may take up to 1000ms */
-/*     // takes around ~16ms for me */
-/* #warning add a timer to limit to 1000ms */
-/*     uint32_t ret; */
-/*     glue_sendCmd(55, 0, 0); */
-/*     ret = glue_sendCmd(41, 0x40000000, 0); */
-/*     while(ret != 0x00) { */
-/* 	glue_sendCmd(55, 0, 0); */
-/* 	ret = glue_sendCmd(41, (1<<30), 0); */
-/*     } */
-
-/*     // check CCS bit in OCR (if set it is high-capacity card) */
-/*     glue_sendCmd(58, 0, 0); */
-    
-/*     // set block size */
-/*     glue_sendCmd(16, 512, 0); */
-
-    return DINIT_OK;
-}
