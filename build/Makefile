@@ -3,8 +3,6 @@ BUILD_DIR = bin
 
 SHARED_DIR += ../src/app/ ../src/driver
 CXXFILES += main.cpp executor.cpp oled.cpp
-# CFILES += api.c
-# AFILES += api-asm.S
 
 DEVICE=stm32f407vgt6
 OOCD_FILE = board/stm32f4discovery.cfg
@@ -17,6 +15,7 @@ OOCD_TARGET = stm32f4x
 # add fatfs
 SHARED_DIR += ../lib/fatfs/source/
 INCLUDES += -I../lib/fatfs/source/
+CXXFILES += glue.cpp
 CFILES += ff.c diskio.c
 
 # link w/ CMSIS 4 for DSP

@@ -9,6 +9,7 @@
 
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
+#include "glue.h"
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -22,7 +23,6 @@
 static DINITRESULT disk_initialized = DINIT_NOTRDY;
 
 static void init_spi(void);
-int32_t send_cmd(uint8_t cmd, uint32_t arg, uint8_t crc);
 int32_t rx_data_block(BYTE *buff, UINT len);
 static uint8_t initialize_card(void);
 
@@ -33,11 +33,11 @@ DSTATUS disk_status(
 		    __attribute__((unused))BYTE pdrv        /* Physical drive number to identify the drive */
 		    )
 {
-    if (DINIT_OK == disk_initialized) {
-	return RES_OK;
-    } else {
-	return RES_NOTRDY;
-    }
+    /* if (DINIT_OK == disk_initialized) { */
+    /* 	return RES_OK; */
+    /* } else { */
+    /* 	return RES_NOTRDY; */
+    /* } */
 }
 
 /*-----------------------------------------------------------------------*/
@@ -48,7 +48,7 @@ DSTATUS disk_initialize(
 			)
 {
     disk_initialized = initialize_card();
-    return disk_status(DUMMY_BYTE);
+    /* return disk_status(DUMMY_BYTE); */
 }
 
 /*-----------------------------------------------------------------------*/
@@ -61,22 +61,22 @@ DRESULT disk_read(
 		  UINT count		/* Number of sectors to read */
 		  )
 {
-    if (disk_initialized != DINIT_OK) {
-	return RES_NOTRDY;
-    }
+    /* if (disk_initialized != DINIT_OK) { */
+    /* 	return RES_NOTRDY; */
+    /* } */
 
-    if (1 == count) { // single read
-	send_cmd(17, sector, 0);
-	rx_data_block(buff, 512);
-    } else { // multiple read
-	send_cmd(18, sector, 0);
-	do {
-	    rx_data_block(buff, 512);
-	    buff += 512;
-	} while (--count);
-    }
+    /* if (1 == count) { // single read */
+    /* 	glue_sendCmd(17, sector, 0); */
+    /* 	rx_data_block(buff, 512); */
+    /* } else { // multiple read */
+    /* 	glue_sendCmd(18, sector, 0); */
+    /* 	do { */
+    /* 	    rx_data_block(buff, 512); */
+    /* 	    buff += 512; */
+    /* 	} while (--count); */
+    /* } */
 
-    return RES_OK;
+    /* return RES_OK; */
 }
 
 
@@ -201,36 +201,36 @@ static void init_spi(void)
     spi_enable(SPI2);
 }
 
-int32_t send_cmd(uint8_t cmd, uint32_t arg, uint8_t crc)
-{
-    uint32_t ret;
+/* int32_t glue_sendCmd(uint8_t cmd, uint32_t arg, uint8_t crc) */
+/* { */
+/*     uint32_t ret; */
 
-    spi_xfer(SPI2, 0xFF);
-    spi_xfer(SPI2, 0xFF);
+/*     spi_xfer(SPI2, 0xFF); */
+/*     spi_xfer(SPI2, 0xFF); */
 
-    gpio_clear(GPIOB, SD_SS_PIN);
+/*     gpio_clear(GPIOB, SD_SS_PIN); */
     
-    spi_xfer(SPI2, cmd | 0x40);
-    spi_xfer(SPI2, arg >> 24);
-    spi_xfer(SPI2, arg >> 16);
-    spi_xfer(SPI2, arg >> 8);
-    spi_xfer(SPI2, arg >> 0);
-    spi_xfer(SPI2, crc);
+/*     spi_xfer(SPI2, cmd | 0x40); */
+/*     spi_xfer(SPI2, arg >> 24); */
+/*     spi_xfer(SPI2, arg >> 16); */
+/*     spi_xfer(SPI2, arg >> 8); */
+/*     spi_xfer(SPI2, arg >> 0); */
+/*     spi_xfer(SPI2, crc); */
 
-    for (uint8_t retry=0; retry < 200; ++retry) {
-	ret = spi_xfer(SPI2, 0xFF);
-	if (!(ret & 0x80)) { // got a valid response, keep reading
-	    while (spi_xfer(SPI2, 0xFF) != 0xFF);
-	    goto send_cmd_end;
-	}
-    }
-    ret = -1;
- send_cmd_end:
-    gpio_set(GPIOB, SD_SS_PIN);
-    spi_xfer(SPI2, 0xFF);
+/*     for (uint8_t retry=0; retry < 200; ++retry) { */
+/* 	ret = spi_xfer(SPI2, 0xFF); */
+/* 	if (!(ret & 0x80)) { // got a valid response, keep reading */
+/* 	    while (spi_xfer(SPI2, 0xFF) != 0xFF); */
+/* 	    goto glue_sendCmd_end; */
+/* 	} */
+/*     } */
+/*     ret = -1; */
+/*  glue_sendCmd_end: */
+/*     gpio_set(GPIOB, SD_SS_PIN); */
+/*     spi_xfer(SPI2, 0xFF); */
     
-    return ret;
-}
+/*     return ret; */
+/* } */
 
 int32_t rx_data_block(BYTE *buff, UINT len)
 {
@@ -259,6 +259,7 @@ int32_t rx_data_block(BYTE *buff, UINT len)
  */
 DINITRESULT initialize_card(void)
 {
+    uint8_t retArr[GLUE_SENDCMD_RETARR_MAXLEN] = {0};
     init_spi();
     
 #warning give proper delay
@@ -272,27 +273,27 @@ DINITRESULT initialize_card(void)
     }
     
     // software reset
-    send_cmd(0, 0, 0x95);
+    glue_sendCmd(retArr, 0, 0, 0x95);
     
-    /* // detect SDC v1 or SDC v2 (we are SDC v2) */
-    send_cmd(8, 0x01AA, 0x87);
+    /* /\* // detect SDC v1 or SDC v2 (we are SDC v2) *\/ */
+/*     glue_sendCmd(8, 0x01AA, 0x87); */
 
-    // loop may take up to 1000ms
-    // takes around ~16ms for me
-#warning add a timer to limit to 1000ms
-    uint32_t ret;
-    send_cmd(55, 0, 0);
-    ret = send_cmd(41, 0x40000000, 0);
-    while(ret != 0x00) {
-	send_cmd(55, 0, 0);
-	ret = send_cmd(41, (1<<30), 0);
-    }
+/*     // loop may take up to 1000ms */
+/*     // takes around ~16ms for me */
+/* #warning add a timer to limit to 1000ms */
+/*     uint32_t ret; */
+/*     glue_sendCmd(55, 0, 0); */
+/*     ret = glue_sendCmd(41, 0x40000000, 0); */
+/*     while(ret != 0x00) { */
+/* 	glue_sendCmd(55, 0, 0); */
+/* 	ret = glue_sendCmd(41, (1<<30), 0); */
+/*     } */
 
-    // check CCS bit in OCR (if set it is high-capacity card)
-    send_cmd(58, 0, 0);
+/*     // check CCS bit in OCR (if set it is high-capacity card) */
+/*     glue_sendCmd(58, 0, 0); */
     
-    // set block size
-    send_cmd(16, 512, 0);
+/*     // set block size */
+/*     glue_sendCmd(16, 512, 0); */
 
     return DINIT_OK;
 }

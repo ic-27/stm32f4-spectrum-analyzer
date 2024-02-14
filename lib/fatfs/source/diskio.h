@@ -84,8 +84,4 @@ DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 
 #define CMD17_TOKEN	0xFE
 
-typedef enum {
-    DINIT_OK = 0,
-    DINIT_NOTRDY
-} DINITRESULT;
 #endif
