@@ -9,7 +9,7 @@
 
 #include "ff.h"			/* Obtains integer types */
 #include "diskio.h"		/* Declarations of disk functions */
-#include "glue.h"
+#include "glue.h" 
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -21,10 +21,6 @@
 #define DEV_USB		2	/* Example: Map USB MSD to physical drive 2 */
 
 extern DINITRESULT diskInitialized;
-
-static void init_spi(void);
-int32_t rx_data_block(BYTE *buff, UINT len);
-static uint8_t initialize_card(void);
 
 /*-----------------------------------------------------------------------*/
 /* Get Drive Status                                                      */
