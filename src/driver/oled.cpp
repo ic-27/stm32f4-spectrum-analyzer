@@ -21,6 +21,8 @@ void Oled::init(void)
     // as instructed by datasheet
     gpio_clear(GPIOA, OLED_RST_PIN);
     // delay for ~200 ms
+    
+    #warning use a timer for this
     for (uint32_t i=0; i<2400000; ++i) {__asm__("nop");}
     gpio_set(GPIOA, OLED_RST_PIN);
 
