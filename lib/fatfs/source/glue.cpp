@@ -112,11 +112,11 @@ DINITRESULT glue_initCard(void)
 }
 
 DRESULT glue_read(
-	       BYTE pdrv,        /* Physical drive nmuber to identify the drive */
-	       BYTE *buff,		/* Data buffer to store read data */
-	       LBA_t sector,	/* Start sector in LBA */
-	       UINT count		/* Number of sectors to read */
-	       )
+		  __attribute__((unused))BYTE pdrv,        /* Physical drive nmuber to identify the drive */
+		  BYTE *buff,		/* Data buffer to store read data */
+		  LBA_t sector,	/* Start sector in LBA */
+		  UINT count		/* Number of sectors to read */
+		  )
 {
     if (DINIT_OK != diskInitialized) {
 	return RES_NOTRDY;

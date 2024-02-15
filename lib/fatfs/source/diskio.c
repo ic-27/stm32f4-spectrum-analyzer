@@ -51,7 +51,7 @@ DSTATUS disk_initialize(
 /* Read Sector(s)                                                        */
 /*-----------------------------------------------------------------------*/
 DRESULT disk_read(
-		  BYTE pdrv,        /* Physical drive nmuber to identify the drive */
+		  __attribute__((unused))BYTE pdrv,        /* Physical drive nmuber to identify the drive */
 		  BYTE *buff,		/* Data buffer to store read data */
 		  LBA_t sector,	/* Start sector in LBA */
 		  UINT count		/* Number of sectors to read */
@@ -115,35 +115,35 @@ DRESULT disk_write (
 /* Miscellaneous Functions                                               */
 /*-----------------------------------------------------------------------*/
 
-DRESULT disk_ioctl (
-		    BYTE pdrv,		/* Physical drive nmuber (0..) */
-		    BYTE cmd,		/* Control code */
-		    void *buff		/* Buffer to send/receive control data */
-		    )
-{
-    DRESULT res;
-    int result;
+/* DRESULT disk_ioctl ( */
+/* 		    BYTE pdrv,		/\* Physical drive nmuber (0..) *\/ */
+/* 		    BYTE cmd,		/\* Control code *\/ */
+/* 		    void *buff		/\* Buffer to send/receive control data *\/ */
+/* 		    ) */
+/* { */
+/*     DRESULT res; */
+/*     int result; */
 
-    switch (pdrv) {
-    case DEV_RAM :
+/*     switch (pdrv) { */
+/*     case DEV_RAM : */
 
-	// Process of the command for the RAM drive
+/* 	// Process of the command for the RAM drive */
 
-	return res;
+/* 	return res; */
 
-    case DEV_MMC :
+/*     case DEV_MMC : */
 
-	// Process of the command for the MMC/SD card
+/* 	// Process of the command for the MMC/SD card */
 
-	return res;
+/* 	return res; */
 
-    case DEV_USB :
+/*     case DEV_USB : */
 
-	// Process of the command the USB drive
+/* 	// Process of the command the USB drive */
 
-	return res;
-    }
+/* 	return res; */
+/*     } */
 
-    return RES_PARERR;
-}
+/*     return RES_PARERR; */
+/* } */
 
