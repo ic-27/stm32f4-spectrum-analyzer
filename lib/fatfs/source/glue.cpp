@@ -98,7 +98,13 @@ DINITRESULT glue_initCard(void)
 	goto glue_initCardFail;
     }
 
-#warning change the SPI speed here!
+    // spi_set_baudrate_prescaler doesn't work properly for some reason
+    // 10.5 MHz seems to be fastest this board can work at w/ microsd
+    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
+		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+		    SPI_CR1_CPHA_CLK_TRANSITION_1,
+		    SPI_CR1_DFF_8BIT,
+		    SPI_CR1_MSBFIRST);
     
     return DINIT_OK;
  glue_initCardFail:
