@@ -124,14 +124,13 @@ DRESULT glue_read(
     
     uint8_t retArr[GLUE_SENDCMD_RETARR_MAXLEN] = {0};
 
-#warning handle glue_sendcmd errors
     if (1 == count) { // single read
-	glue_sendCmd(retArr, 17, sector, 0);
-	glue_rxDataBlock(buff, 512);
+	if (glue_sendCmd(retArr, 17, sector, 0) || retArr[0] != INIT_STATE) return RES_ERROR;
+	if (glue_rxDataBlock(buff, 512)) return RES_ERROR;
     } else { // multiple read
-	glue_sendCmd(retArr, 18, sector, 0);
+	if (glue_sendCmd(retArr, 18, sector, 0) || retArr[0] != INIT_STATE) return RES_ERROR;
 	do {
-	    glue_rxDataBlock(buff, 512);
+	    if (glue_rxDataBlock(buff, 512)) return RES_ERROR;
 	    buff += 512;
 	} while (--count);
     }
@@ -142,12 +141,16 @@ int32_t glue_rxDataBlock(BYTE *buff, UINT len)
 {
     gpio_clear(GPIOB, SD_SS_PIN);
 
-#warning glue_rxDataBlock: add a timeout later
     uint8_t token;
-    do {
+    for (uint8_t retry=0; retry<RETRY_TIMES; ++retry) {
 	token = spi_xfer(SPI2, DUMMY_BYTE);
-    } while (CMD171824_TOKEN != token);
-
+	if (CMD171824_TOKEN == token) {
+	    goto glue_rxDataBlock_cont;
+	}
+    }
+    return -1;
+    
+ glue_rxDataBlock_cont:
     for (UINT i=0; i<len; ++i) {
 	buff[i] = spi_xfer(SPI2, DUMMY_BYTE);
     }

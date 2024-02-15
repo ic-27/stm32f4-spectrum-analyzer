@@ -37,7 +37,7 @@ typedef enum {
 #define GLUE_SENDCMD_RETARR_MAXLEN	5
 #define DUMMY_CLK_PULSES		10	// 10*8 = 80 > 74 clock pulses
 
-// sd card specific commands, expected values
+// sd card specific commands, expected ret values, states
 #define SOFTWARE_RST_CMD	0
 #define CHK_VER_CMD		8
 #define SET_BLK_CMD		16
