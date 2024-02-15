@@ -18,13 +18,12 @@ void Executor::init(void)
 }
 
 /**
- * Executor::exec() - Run main for loop
+ * Executor::exec() - Run main for-loop
  *
  * Return: void
  */
 bool Executor::exec(void)
 {
-    
     
     return true;
 }

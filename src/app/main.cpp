@@ -34,34 +34,6 @@ static void button_setup(void)
     gpio_mode_setup(GPIOA, GPIO_MODE_INPUT, GPIO_PUPD_PULLDOWN, GPIO0);
 }
 
-#define SD_CLK_PIN	GPIO13
-#define SD_MISO_PIN	GPIO14
-#define SD_MOSI_PIN	GPIO15
-#define SD_SS_PIN	GPIO12
-
-static void init_spi(void)
-{
-    rcc_periph_clock_enable(RCC_GPIOB);
-
-    gpio_mode_setup(GPIOB, GPIO_MODE_AF, GPIO_PUPD_NONE,
-		    SD_CLK_PIN | SD_MISO_PIN | SD_MOSI_PIN);
-    gpio_set_af(GPIOB, GPIO_AF5, SD_CLK_PIN | SD_MISO_PIN | SD_MOSI_PIN);
-
-    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, SD_SS_PIN); // ss
-    gpio_set(GPIOB, SD_SS_PIN);
-
-    rcc_periph_clock_enable(RCC_SPI2);
-    spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_32,
-		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-		    SPI_CR1_CPHA_CLK_TRANSITION_1,
-		    SPI_CR1_DFF_8BIT,
-		    SPI_CR1_MSBFIRST);
-    
-    spi_enable_ss_output(SPI2);
-    spi_enable(SPI2);
-}
-
-
 int main(void)
 {
     Executor exec = Executor();
@@ -87,12 +59,6 @@ int main(void)
     uint8_t buff[512];
     UINT bytes_read = 0;
     f_read(&file_h, buff, 10, &bytes_read);
-    //init_spi();
-    
-    // gpio_clear(GPIOB, SD_SS_PIN);
-    // spi_blocking_send(SPI2, 0x11);
-    // gpio_set(GPIOB, SD_SS_PIN);
-    
     
     /* Blink the LED (PD12) on the board. */
     while (1) {
