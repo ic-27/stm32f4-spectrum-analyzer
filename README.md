@@ -1,3 +1,6 @@
+## Overview ##
+This is an audio spectrum analyzer written in C/C++ using FFT of wav audio file read from microSD card through FatFS displayed onto an OLED screen. Credits to [anweshct3](https://github.com/anweshct3/Audio-Spectrum-Analyzer-STM32) for initial project inspiration. This project also stemmed from my wanting to learn/practice C++, DSP, ARM, CppUTest, and integrating different libraries.
+
 ## Task List ## 
   - [x] Write audio spectrum analyzer in python
   - [x] Integrate libopencm3 open source HAL
@@ -13,13 +16,19 @@
   - [ ] Display DSP output onto OLED
   - [ ] Use I2C to allow audio playback
 
+## Libraries ##
+* [libopencm3](https://libopencm3.org/)
+* [CMSIS-4](https://github.com/ARM-software/CMSIS_4)
+* [FatFS](https://github.com/abbrev/fatfs)
+* [CppUTest](https://github.com/cpputest/cpputest)
+
 ## Helpful Links ##
 * [[CppUTest] How to write a makefile for CppUTest](https://matheusmbar.com/bugfree-robot/2019/04/05/makefile-first-test.html)
 * [[CppUTest] CppUTest Starter Project](https://github.com/jwgrenning/cpputest-starter-project#run-tests-with-an-installed-tool-chain)
-* [[DSP] CMSIS-4 Library](https://github.com/ARM-software/CMSIS_4)
-* [[DSP] STM32 Fast Fourier Transform (CMSIS DSP FFT) - Phil's Lab #111](https://www.youtube.com/watch?v=d1KvgOwWvkM)
-* [[DSP] ESP32 spectrum analyser VU meter using arduinoFFT and a FastLED matrix](https://www.youtube.com/watch?v=Mgh2WblO5_c)
-* [[DSP] Configuring CMSIS DSP Package and Performing a Real FFT](https://gaidi.ca/weblog/configuring-cmsis-dsp-package-and-performing-a-real-fft/)
+* [[FFT] CMSIS-4 Library](https://github.com/ARM-software/CMSIS_4)
+* [[FFT] STM32 Fast Fourier Transform (CMSIS DSP FFT) - Phil's Lab #111](https://www.youtube.com/watch?v=d1KvgOwWvkM)
+* [[FFT] ESP32 spectrum analyser VU meter using arduinoFFT and a FastLED matrix](https://www.youtube.com/watch?v=Mgh2WblO5_c)
+* [[FFT] Configuring CMSIS DSP Package and Performing a Real FFT](https://gaidi.ca/weblog/configuring-cmsis-dsp-package-and-performing-a-real-fft/)
 * [[FatFS] How to integrate FatFS using SPI](http://elm-chan.org/docs/mmc/mmc_e.html)
 * [[FatFS] FatFS SD card Initialization Process](http://elm-chan.org/docs/mmc/mmc_e.html)
 * [[FatFS] Example integration FatFS on stm32](https://embetronicx.com/tutorials/microcontrollers/stm32/stm32-sd-card-interfacing-with-example/#STM32_SD_Card_Example)
