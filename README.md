@@ -16,19 +16,19 @@ This is an audio spectrum analyzer written in C/C++ using FFT of wav audio file 
   - [ ] Display DSP output onto OLED
   - [ ] Use I2C to allow audio playback
 
+## Demo ##
+Coming soon! :-)
+
 ## Structure ##
 ```
 build: makefile for building and flashing project
-test: makefile for running unit & integration tests using CppUTest
-lib: external libraries
-src: contains src and header files for building the project split into application, bsp, and driver
-misc: audio spectrum analyzer written in python3 & wav files
+test:  makefile for running unit & integration tests using CppUTest
+lib:   external libraries
+src:   contains src and header files for building the project split into application, bsp, and driver
+misc:  audio spectrum analyzer written in python3 & wav files
 ```
 
-## Building ##
-WIP
-
-## Demo ##
+## How to Build ##
 Coming soon! :-)
 
 ## Libraries ##
