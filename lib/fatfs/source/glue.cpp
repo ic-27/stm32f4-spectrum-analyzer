@@ -98,8 +98,8 @@ DINITRESULT glue_initCard(void)
 	goto glue_initCardFail;
     }
 
-    // spi_set_baudrate_prescaler doesn't work properly for some reason
-    // 10.5 MHz seems to be fastest this board can work at w/ microsd
+    //spi_set_baudrate_prescaler doesn't work properly for some reason
+    //10.5 MHz seems to be fastest this board can work at w/ microsd
     spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_4,
 		    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
 		    SPI_CR1_CPHA_CLK_TRANSITION_1,
@@ -125,37 +125,49 @@ DRESULT glue_read(
     uint8_t retArr[GLUE_SENDCMD_RETARR_MAXLEN] = {0};
 
     if (1 == count) { // single read
-	if (glue_sendCmd(retArr, 17, sector, 0) || retArr[0] != INIT_STATE) return RES_ERROR;
-	if (glue_rxDataBlock(buff, 512)) return RES_ERROR;
+	if (glue_sendCmd(retArr, 17, sector, 0) || retArr[0] != INIT_STATE) goto glue_read_err;
+	if (glue_rxDataBlock(buff, BLK_SIZE)) goto glue_read_err;
     } else { // multiple read
-	if (glue_sendCmd(retArr, 18, sector, 0) || retArr[0] != INIT_STATE) return RES_ERROR;
+#warning cmd 18 not working returning FR_DISK_ERR
+	if (glue_sendCmd(retArr, 18, sector, 0) || retArr[0] != INIT_STATE) goto glue_read_err;
 	do {
-	    if (glue_rxDataBlock(buff, 512)) return RES_ERROR;
-	    buff += 512;
+	    if (glue_rxDataBlock(buff, BLK_SIZE)) goto glue_read_err;
+	    buff += BLK_SIZE;
 	} while (--count);
     }
     return RES_OK;
+ glue_read_err:
+    return RES_ERROR;
 }
 
 int32_t glue_rxDataBlock(BYTE *buff, UINT len)
 {
     gpio_clear(GPIOB, SD_SS_PIN);
 
-    uint8_t token;
-    for (uint8_t retry=0; retry<RETRY_TIMES; ++retry) {
+    uint8_t token = spi_xfer(SPI2, DUMMY_BYTE);
+    while (CMD171824_TOKEN != token) {
 	token = spi_xfer(SPI2, DUMMY_BYTE);
-	if (CMD171824_TOKEN == token) {
-	    goto glue_rxDataBlock_cont;
-	}
     }
-    return -1;
+    
+    // for (uint8_t retry=0; retry<RETRY_TIMES; ++retry) {
+    // 	token = spi_xfer(SPI2, DUMMY_BYTE);
+    // 	if (CMD171824_TOKEN == token) {
+    // 	    goto glue_rxDataBlock_cont;
+    // 	}
+    // }
+    // return -1;
     
  glue_rxDataBlock_cont:
     for (UINT i=0; i<len; ++i) {
 	buff[i] = spi_xfer(SPI2, DUMMY_BYTE);
     }
+
+    spi_xfer(SPI2, DUMMY_BYTE);
+    spi_xfer(SPI2, DUMMY_BYTE);
     
     gpio_set(GPIOB, SD_SS_PIN);
+    spi_xfer(SPI2, DUMMY_BYTE);
+    
     return 0;
 }
 

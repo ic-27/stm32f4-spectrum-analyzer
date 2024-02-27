@@ -24,7 +24,7 @@ CMSIS_LIB_PATH = ../lib/CMSIS_4/CMSIS/Lib/GCC #libarm_cortexM4l_math.a
 
 INCLUDES += -I$(CMSIS_HEADER_PATH) # where to find arm_math.h
 TGT_LDFLAGS += -L$(CMSIS_LIB_PATH) # searchdir
-LDLIBS += -larm_cortexM4lf_math # lib in searchdir
+LDLIBS += -larm_cortexM4lf_math -lm # lib in searchdir
 
 # You shouldn't have to edit anything below here.
 VPATH += $(SHARED_DIR)
