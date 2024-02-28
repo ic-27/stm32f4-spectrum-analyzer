@@ -63,7 +63,8 @@ int main(void)
     UINT bytesRead = 0;
     f_lseek(&file_h, WAV_METADATA_LEN); // ignore any metadata
     
-    float32_t fftIn[FFTLEN]={0}, fftOut[FFTLEN]={0}, powerFFT[FFTLEN/2]={0};
+    float32_t fftIn[FFTLEN]={0}, fftOut[FFTLEN]={0};
+    uint8_t powerFFT[FFTLEN/2]={0};
     float32_t realFFT[FFTLEN/2]={0}, imagFFT[FFTLEN/2]={0};
 
     arm_status armStat = arm_rfft_fast_init_f32(&s, FFTLEN); 
@@ -87,6 +88,7 @@ int main(void)
 #warning how to constrain the magnitude to be between 0 and 1 (0 and 64)
 	    // calculate the magnitude
 	    float32_t curMag = sqrtf((realFFT[j]*realFFT[j]) + (imagFFT[j]*imagFFT[j]));
+	    powerFFT[j] = (uint8_t)(curMag*64*2/(32767*FFTLEN));
 	    if (curMag > peakVal) {
 		peakVal = curMag;
 		peakHz = (uint16_t)(freqIndex*44100/((float32_t)FFTLEN));
