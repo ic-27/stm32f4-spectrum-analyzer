@@ -10,8 +10,8 @@
 #define OLED_MISO_PIN	GPIO6
 #define OLED_MOSI_PIN	GPIO7
 
-#define OLED_COLS	128
-#define OLED_ROWS	64
+#define OLED_COLS	64
+#define OLED_ROWS	128
 #define OLED_PAGE_START 0xB0
 #define OLED_PAGE_END	0xB7
 
@@ -24,6 +24,7 @@ private:
     void wr_cmd(uint8_t data);
     void wr_data(uint8_t data);
     void clear(void);
+    void update(uint8_t *internalOledArray);
 };
 
 #endif
