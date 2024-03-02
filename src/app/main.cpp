@@ -54,7 +54,7 @@ int main(void)
     f_mount(&Fatfs, "", 0);
 
 #warning check the status
-    FRESULT fileStatus = f_open(&file_h, "10kHz.wav", FA_OPEN_EXISTING | FA_READ);
+    FRESULT fileStatus = f_open(&file_h, "1kHz.wav", FA_OPEN_EXISTING | FA_READ);
 
     // read the wav file in buffer
     int16_t readBuff[FFTLEN]; // 16-bit audio
@@ -112,7 +112,15 @@ int main(void)
 	    }
 	    ++freqBinIndex;
 	}
-	// map between 0 and OLED_SCREEN_ROWS (64)
+	
+	// map each frequency band between 0 and OLED_SCREEN_ROWS (64)
+	uint8_t freqBandScaled[8] = {0};
+	for (int i=0; i<8; ++i) {
+	    freqBandScaled[i] = (uint8_t)(freqBand[i]*18); // 18 is the scale factor, find to be fine across different wav files
+	    if (freqBandScaled[i] > OLED_ROWS) {
+		freqBandScaled[i] = OLED_ROWS;
+	    }
+	}
 	
 	// output to oled screen
 	
@@ -120,7 +128,6 @@ int main(void)
     } while ((FR_OK == fileStatus) && (bytesRead == FFTLEN*2));
 
 
-#warning how do I place values into certain bins
     // each index represents a certain frequency, so we need to do it based on the index
     // get the average of indexes in a certain bin, 
     
