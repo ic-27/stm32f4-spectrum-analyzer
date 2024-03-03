@@ -2,7 +2,7 @@ PROJECT = audio_fft
 BUILD_DIR = bin
 
 SHARED_DIR += ../src/app/ ../src/driver
-CXXFILES += main.cpp executor.cpp display.cpp oled.cpp
+CXXFILES += main.cpp executor.cpp display.cpp oled.cpp spectrum_analyzer.cpp
 
 DEVICE=stm32f407vgt6
 OOCD_FILE = board/stm32f4discovery.cfg
