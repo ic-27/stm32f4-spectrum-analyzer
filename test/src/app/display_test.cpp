@@ -10,7 +10,7 @@ static uint8_t col = START_COL;
 static uint8_t row = START_ROW;
 static uint8_t g_oledArray[OLED_COLS][OLED_ROWS] = {1};
 
-TEST_GROUP(OledDriver)
+TEST_GROUP(Display)
 {
     void setup()
     {
@@ -58,7 +58,7 @@ void Oled::wr_data(uint8_t data)
     ++row; // the oled automatically increments the row. since we are simulating, we do it manually.
 }
  
-TEST(OledDriver, OledClearClearsAllPixels)
+TEST(Display, OledClearClearsAllPixels)
 {
     // instead of writing to an actually oled, we write to g_oledArray for
     // testing. it is initialized to all 1's
@@ -82,7 +82,7 @@ TEST(OledDriver, OledClearClearsAllPixels)
     }
 }
 
-TEST(OledDriver, OledCorrectlyUpdatesZero)
+TEST(Display, OledCorrectlyUpdatesZero)
 {
     // instead of writing to an actually oled, we write to g_oledArray for
     // testing. it is initialized to all 1's
@@ -108,7 +108,7 @@ TEST(OledDriver, OledCorrectlyUpdatesZero)
     }
 }
 
-TEST(OledDriver, OledCorrectlyUpdatesOne)
+TEST(Display, OledCorrectlyUpdatesOne)
 {
     // setup
     for (uint8_t i=0; i<OLED_COLS; ++i) { // oled externa display output
@@ -137,7 +137,7 @@ TEST(OledDriver, OledCorrectlyUpdatesOne)
     }
 }
 
-TEST(OledDriver, OledCorrectlyUpdates30)
+TEST(Display, OledCorrectlyUpdates30)
 {
     // setup
     for (uint8_t i=0; i<OLED_COLS; ++i) { // oled externa display output

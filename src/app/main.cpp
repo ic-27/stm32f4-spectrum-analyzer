@@ -12,7 +12,7 @@
 #include "ff.h"
 
 #include "executor.h"
-#include "../driver/oled.h"
+#include "display.h"
 #include "../bsp/led_matrix.h"
 
 #define WAV_METADATA_LEN 44
@@ -28,8 +28,7 @@ int main(void)
     Executor exec = Executor();
     exec.init();
 
-    Oled oled = Oled();
-    oled.init();
+    Display display = Display();
 
     FATFS Fatfs; // work area for logical drive
     f_mount(&Fatfs, "", 0);
@@ -100,7 +99,7 @@ int main(void)
 	}
 	for(int i=0; i<100000; ++i); // wait >= 1ms
 	// output to oled screen
-	oled.update(freqBandScaled);
+	display.update(freqBandScaled);
 
 	// reset
 	memset(freqBand, 0, sizeof(freqBand));
