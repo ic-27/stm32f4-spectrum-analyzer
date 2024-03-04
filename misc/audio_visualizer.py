@@ -82,7 +82,8 @@ class MainWindow(QtWidgets.QWidget):
         try:
             wf_data_short = struct.unpack(str(self.channels*self.chunks)+"h", wf_data)
         except:
-            self.timer.stop()
+            self.wf.rewind()
+            #self.timer.stop()
             return
 
         fft_wf_data_short = np.abs(rfft(wf_data_short)) # calc magnitude
