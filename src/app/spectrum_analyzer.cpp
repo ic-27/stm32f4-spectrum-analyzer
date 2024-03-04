@@ -1,23 +1,12 @@
 #include "spectrum_analyzer.h"
 #include "display.h"
 
-Spec::Spec(void)
+Spec::Spec(void) : display{Display()}
 {
-    this->init();
-}
-
-/**
- * init() - Initialize oled display, filesystem, arm fft
- *
- * Return: void
- */
-void Spec::init(void)
-{
-    display = Display();
-    
     #warning check the return values
     f_mount(&Fatfs, "", 0);
     FRESULT fileStatus = f_open(&file_h, WAV_FILE_NAME, FA_OPEN_EXISTING | FA_READ);
+    
     arm_status armStat = arm_rfft_fast_init_f32(&s, FFTLEN); 
 }
 
@@ -83,7 +72,7 @@ void Spec::calcFFT(void)
 		freqBandScaled[i] = OLED_ROWS;
 	    }
 	}
-#warning use a proper timer! (don't want to update too quickly)
+#warning use a proper timer! (dont want to update too quickly)
 	for(int i=0; i<500000; ++i); // wait for some time
 	// output to oled screen
 	display.update(freqBandScaled);

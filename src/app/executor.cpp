@@ -7,9 +7,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include "executor.h"
 
-Executor::Executor(void)
+Executor::Executor(void) : specAnalyzer{Spec()}
 {
-    this->init();
+    this->clock_setup();
 }
 
 /**
