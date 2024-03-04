@@ -20,6 +20,7 @@ Executor::Executor(void)
 void Executor::init(void)
 {
     this->clock_setup();
+    specAnalyzer = Spec();
 }
 
 /**
@@ -27,10 +28,9 @@ void Executor::init(void)
  *
  * Return: void
  */
-bool Executor::exec(void)
+void Executor::exec(void)
 {
-    
-    return true;
+    specAnalyzer.calcFFT();
 }
 
 /**

@@ -18,7 +18,6 @@ void Spec::init(void)
     #warning check the return values
     f_mount(&Fatfs, "", 0);
     FRESULT fileStatus = f_open(&file_h, WAV_FILE_NAME, FA_OPEN_EXISTING | FA_READ);
-    f_lseek(&file_h, WAV_METADATA_LEN); // ignore any metadata
     arm_status armStat = arm_rfft_fast_init_f32(&s, FFTLEN); 
 }
 
@@ -32,6 +31,7 @@ void Spec::calcFFT(void)
 {
     FRESULT fileStatus;
     UINT bytesRead = 0;
+    f_lseek(&file_h, WAV_METADATA_LEN); // ignore any metadata
     do {
 	fileStatus = f_read(&file_h, readBuff, FFTLEN*2, &bytesRead); // read wav file
 
@@ -83,7 +83,7 @@ void Spec::calcFFT(void)
 		freqBandScaled[i] = OLED_ROWS;
 	    }
 	}
-#warning use a proper timer!
+#warning use a proper timer! (don't want to update too quickly)
 	for(int i=0; i<500000; ++i); // wait for some time
 	// output to oled screen
 	display.update(freqBandScaled);
