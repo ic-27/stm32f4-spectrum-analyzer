@@ -5,8 +5,8 @@ This repository is licensed under GPL-3.0. Third-party libraries used are distri
 This is an audio spectrum analyzer written in C/C++ on the STM32F4 discovery kit using FFT of wav audio file read from microSD card through FatFS displayed onto an OLED screen. Credits to [anweshct3](https://github.com/anweshct3/Audio-Spectrum-Analyzer-STM32) for initial project inspiration. This project also stemmed from my wanting to learn/practice C++, DSP, ARM, CppUTest, and integrating different libraries. Project includes the audio spectrum analyzer on the STM32F4 discovery kit, and an audio spectrum analyzer written in python for the host computer.
 
 <p float="left">
-  <img src="https://github.com/ic-27/stm32f4-spectrum-analyzer/blob/master/misc/readme_files/stm32f4_audio_spectrum_analyzer.jpg" width="400"/>
-  <img src="https://github.com/ic-27/stm32f4-spectrum-analyzer/blob/master/misc/readme_files/python_audio_spectrum_analyzer.png" width="430"/>
+  <img src="https://github.com/ic-27/stm32f4-spectrum-analyzer/blob/master/misc/readme_files/stm32f4_audio_spectrum_analyzer.jpg" width="350"/>
+  <img src="https://github.com/ic-27/stm32f4-spectrum-analyzer/blob/master/misc/readme_files/python_audio_spectrum_analyzer.png" width="370"/>
 </p>
 
 ## Task List ## 
