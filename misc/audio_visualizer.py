@@ -7,6 +7,7 @@ import wave
 import numpy as np
 import pyaudio
 import pyqtgraph as pg
+import timeit
 
 from PyQt6 import QtCore, QtWidgets
 from scipy.fft import fft, fftfreq, rfft, rfftfreq
@@ -14,12 +15,14 @@ from scipy.fft import fft, fftfreq, rfft, rfftfreq
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, wf):
         super().__init__()
-
+        
         self.setWindowTitle('Audio Time Frequency Graph')
 
+        self.y_range = 64
+        
         # waveform
         self.wf = wave.open(sys.argv[1], 'rb')
-        self.chunks = 2048
+        self.chunks = 512
         self.samp_width = self.wf.getsampwidth()
         self.channels = self.wf.getnchannels()
         self.sample_rate = self.wf.getframerate()
@@ -50,7 +53,7 @@ class MainWindow(QtWidgets.QWidget):
         self.freq_graph.setLabel("bottom", "Frequency", **styles)
         self.freq_graph.showGrid(x=True, y=True)
         self.freq_graph.setXRange(0, self.sample_rate/2)
-        self.freq_graph.setYRange(0, 1)
+        self.freq_graph.setYRange(0, self.y_range)
         # self.freq_graph.enableAutoRange(y=True)
         # self.freq_graph.setAutoVisible(y=True)
         self.freq_samples = np.linspace(0, self.sample_rate, self.channels*self.chunks)[0:int(((self.channels*self.chunks)/2)+1)] # x-axis (freq)
@@ -65,7 +68,7 @@ class MainWindow(QtWidgets.QWidget):
 
         # create timer
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(0)
+        self.timer.setInterval(0) # don't wait to update, keep playing
         self.timer.timeout.connect(self.update_plot)
         self.timer.start() 
         
@@ -74,18 +77,20 @@ class MainWindow(QtWidgets.QWidget):
 
     def update_plot(self):
         wf_data = self.wf.readframes(self.chunks) # underrun may occur. can solve w/ threading or larger chunk size
+        
         self.stream.write(wf_data)
         try:
             wf_data_short = struct.unpack(str(self.channels*self.chunks)+"h", wf_data)
         except:
             self.timer.stop()
             return
+
         fft_wf_data_short = np.abs(rfft(wf_data_short)) # calc magnitude
-        fft_wf_data_short = fft_wf_data_short*2/((32768/2)*self.chunks) # rescaling between 0-1
+        fft_wf_data_short = fft_wf_data_short*2/(32767*self.chunks) # rescaling between 0-1
+        fft_wf_data_short*= self.y_range
 
         self.time_line.setData(self.time_samples, wf_data_short) # y-axis (time)
         self.freq_line.setData(self.freq_samples, fft_wf_data_short) # y-axis (freq)
-        
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

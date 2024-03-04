@@ -138,10 +138,32 @@ void Oled::wr_data(uint8_t data)
 void Oled::clear(void)
 {
     for (uint8_t j=OLED_PAGE_START; j<=OLED_PAGE_END; ++j) {
+	this->wr_cmd(j); // set page (shift to another column)
+	this->wr_cmd(0x02); // set lower column addr
+	this->wr_cmd(0x10); // set higher column addr
+	for (uint8_t k=0; k<OLED_ROWS; ++k) {
+	    this->wr_data(0x00);
+	}
+    }
+}
+
+/**
+ * Oled::update - Clear OLED screen
+ * 
+ * Return: void
+ */
+void Oled::update(uint8_t *internalOledArray)
+{
+    for (uint8_t i=0, j=OLED_PAGE_START; j<=OLED_PAGE_END; ++i, ++j) {
 	this->wr_cmd(j); // set page
 	this->wr_cmd(0x02); // set lower column addr
 	this->wr_cmd(0x10); // set higher column addr
-	for (uint8_t k=0; k<OLED_COLS; ++k) {
+	
+	uint8_t k=0;
+	for (; k<internalOledArray[i]; ++k) { // internalOledArray[i] always < OLED_ROWS
+	    this->wr_data(0xFF);
+	}
+	for (; k<OLED_ROWS; ++k) {
 	    this->wr_data(0x00);
 	}
     }

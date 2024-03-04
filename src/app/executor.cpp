@@ -7,6 +7,11 @@
 #include <libopencm3/stm32/rcc.h>
 #include "executor.h"
 
+Executor::Executor(void)
+{
+    this->init();
+}
+
 /**
  * Executor::init() - Initialize all submodules
  *
