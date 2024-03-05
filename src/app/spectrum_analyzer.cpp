@@ -24,7 +24,7 @@ void Spec::calcFFT(void)
     do {
 	fileStatus = f_read(&file_h, readBuff, FFTLEN*2, &bytesRead); // read wav file
 
-	// convert read wav file data into fft input, must be float32_t datatype
+	// read & convert wav file data into fft input, must be float32_t datatype
 	for (uint16_t j=0; j<FFTLEN; ++j) { 
 	    fftIn[j] = (float32_t)(readBuff[j]);
 	}
@@ -44,21 +44,22 @@ void Spec::calcFFT(void)
 
 #warning comment what frequencies the frequency bands represent
 	    // put into different frequency bands
+	    // each index represents a certain frequency, freq = freqBinIndex * (44100/512)
 	    if (freqBinIndex <= 1) {
 		freqBand[0] += scaled_mag;
-	    } else if (freqBinIndex > 1 && freqBinIndex <= 3) {
+	    } else if (freqBinIndex > 2 && freqBinIndex <= 3) {
 		freqBand[1] += scaled_mag;
 	    } else if (freqBinIndex > 3 && freqBinIndex <= 7) {
 		freqBand[2] += scaled_mag;
-	    } else if (freqBinIndex > 3 && freqBinIndex <= 14) {
+	    } else if (freqBinIndex > 7 && freqBinIndex <= 15) {
 		freqBand[3] += scaled_mag;
-	    } else if (freqBinIndex > 14 && freqBinIndex <= 30) {
+	    } else if (freqBinIndex > 15 && freqBinIndex <= 31) {
 		freqBand[4] += scaled_mag;
-	    } else if (freqBinIndex > 30 && freqBinIndex <= 64) {
+	    } else if (freqBinIndex > 31 && freqBinIndex <= 65) {
 		freqBand[5] += scaled_mag;
-	    } else if (freqBinIndex > 64 && freqBinIndex <= 136) {
+	    } else if (freqBinIndex > 65 && freqBinIndex <= 137) { 
 		freqBand[6] += scaled_mag;
-	    } else if (freqBinIndex > 136 && freqBinIndex <= 291) {
+	    } else if (freqBinIndex > 137) {
 		freqBand[7] += scaled_mag;
 	    }
 	    ++freqBinIndex;
