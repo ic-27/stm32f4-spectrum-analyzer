@@ -59,7 +59,7 @@ void Spec::calcFFT(void)
 		freqBand[5] += scaled_mag;
 	    } else if (freqBinIndex > 65 && freqBinIndex <= 137) { 
 		freqBand[6] += scaled_mag;
-	    } else if (freqBinIndex > 137) {
+	    } else if (freqBinIndex > 137 && freqBinIndex <= 186) {
 		freqBand[7] += scaled_mag;
 	    }
 	    ++freqBinIndex;
