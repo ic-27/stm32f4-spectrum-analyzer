@@ -9,6 +9,8 @@ This is an audio spectrum analyzer written in C/C++ on the STM32F4 discovery kit
   <img src="https://github.com/ic-27/stm32f4-spectrum-analyzer/blob/master/misc/readme_files/python_audio_spectrum_analyzer.png" width="370"/>
 </p>
 
+I first started out writing the audio spectrum analyzer in python to establish a base "truth." It was much easier to code and debug in python first, and then approach programming it on the STM32F4 discovery board. The python program was useful in debugging what was wrong with my implementation on the STM32F4, such as discovering that I needed to skip the first 44 bytes of a wav file since it was metadata.
+
 ## Task List ## 
   - [x] Write audio spectrum analyzer in python
   - [x] Integrate libopencm3 open source HAL
